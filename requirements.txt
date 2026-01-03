@@ -1,0 +1,3 @@
+# Trader Application Requirements
+# This application uses only Python standard library
+# No external dependencies required for basic functionality
