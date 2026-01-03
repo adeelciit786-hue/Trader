@@ -36,6 +36,24 @@ class TestPortfolio(unittest.TestCase):
         self.assertEqual(self.portfolio.cash, 10000.0)
         self.assertEqual(len(self.portfolio.holdings), 0)
     
+    def test_buy_negative_quantity(self):
+        """Test buy order with negative quantity."""
+        result = self.portfolio.buy('AAPL', -10, 150.0)
+        self.assertFalse(result)
+        self.assertEqual(self.portfolio.cash, 10000.0)
+    
+    def test_buy_zero_quantity(self):
+        """Test buy order with zero quantity."""
+        result = self.portfolio.buy('AAPL', 0, 150.0)
+        self.assertFalse(result)
+        self.assertEqual(self.portfolio.cash, 10000.0)
+    
+    def test_buy_negative_price(self):
+        """Test buy order with negative price."""
+        result = self.portfolio.buy('AAPL', 10, -150.0)
+        self.assertFalse(result)
+        self.assertEqual(self.portfolio.cash, 10000.0)
+    
     def test_sell_success(self):
         """Test successful sell order."""
         self.portfolio.buy('AAPL', 10, 150.0)
@@ -56,6 +74,27 @@ class TestPortfolio(unittest.TestCase):
         """Test sell order for symbol not in holdings."""
         result = self.portfolio.sell('GOOGL', 10, 2800.0)
         self.assertFalse(result)
+    
+    def test_sell_negative_quantity(self):
+        """Test sell order with negative quantity."""
+        self.portfolio.buy('AAPL', 10, 150.0)
+        result = self.portfolio.sell('AAPL', -5, 155.0)
+        self.assertFalse(result)
+        self.assertEqual(self.portfolio.holdings['AAPL'], 10)
+    
+    def test_sell_zero_quantity(self):
+        """Test sell order with zero quantity."""
+        self.portfolio.buy('AAPL', 10, 150.0)
+        result = self.portfolio.sell('AAPL', 0, 155.0)
+        self.assertFalse(result)
+        self.assertEqual(self.portfolio.holdings['AAPL'], 10)
+    
+    def test_sell_negative_price(self):
+        """Test sell order with negative price."""
+        self.portfolio.buy('AAPL', 10, 150.0)
+        result = self.portfolio.sell('AAPL', 5, -155.0)
+        self.assertFalse(result)
+        self.assertEqual(self.portfolio.holdings['AAPL'], 10)
     
     def test_sell_all_shares(self):
         """Test selling all shares removes symbol from holdings."""

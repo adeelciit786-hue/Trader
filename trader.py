@@ -19,6 +19,9 @@ class Portfolio:
     
     def buy(self, symbol: str, quantity: int, price: float) -> bool:
         """Execute a buy order."""
+        if quantity <= 0 or price < 0:
+            return False
+        
         total_cost = quantity * price
         if total_cost > self.cash:
             return False
@@ -38,6 +41,9 @@ class Portfolio:
     
     def sell(self, symbol: str, quantity: int, price: float) -> bool:
         """Execute a sell order."""
+        if quantity <= 0 or price < 0:
+            return False
+        
         if symbol not in self.holdings or self.holdings[symbol] < quantity:
             return False
         
@@ -110,13 +116,20 @@ class Trader:
     
     def save_portfolio(self):
         """Save portfolio to file."""
-        with open(self.data_file, 'w') as f:
-            json.dump(self.portfolio.to_dict(), f, indent=2)
+        try:
+            with open(self.data_file, 'w') as f:
+                json.dump(self.portfolio.to_dict(), f, indent=2)
+        except IOError as e:
+            print(f"Error saving portfolio: {e}")
     
     def place_buy_order(self, symbol: str, quantity: int) -> bool:
         """Place a buy order."""
         if symbol not in self.market_prices:
             print(f"Error: Unknown symbol {symbol}")
+            return False
+        
+        if quantity <= 0:
+            print(f"Error: Quantity must be positive")
             return False
         
         price = self.market_prices[symbol]
@@ -132,6 +145,10 @@ class Trader:
         """Place a sell order."""
         if symbol not in self.market_prices:
             print(f"Error: Unknown symbol {symbol}")
+            return False
+        
+        if quantity <= 0:
+            print(f"Error: Quantity must be positive")
             return False
         
         price = self.market_prices[symbol]
@@ -197,17 +214,23 @@ class Trader:
                 elif command.startswith('buy '):
                     parts = command.split()
                     if len(parts) == 3:
-                        symbol = parts[1].upper()
-                        quantity = int(parts[2])
-                        self.place_buy_order(symbol, quantity)
+                        try:
+                            symbol = parts[1].upper()
+                            quantity = int(parts[2])
+                            self.place_buy_order(symbol, quantity)
+                        except ValueError:
+                            print("Error: Quantity must be a valid number")
                     else:
                         print("Usage: buy <symbol> <quantity>")
                 elif command.startswith('sell '):
                     parts = command.split()
                     if len(parts) == 3:
-                        symbol = parts[1].upper()
-                        quantity = int(parts[2])
-                        self.place_sell_order(symbol, quantity)
+                        try:
+                            symbol = parts[1].upper()
+                            quantity = int(parts[2])
+                            self.place_sell_order(symbol, quantity)
+                        except ValueError:
+                            print("Error: Quantity must be a valid number")
                     else:
                         print("Usage: sell <symbol> <quantity>")
                 elif command == 'exit' or command == 'quit':
